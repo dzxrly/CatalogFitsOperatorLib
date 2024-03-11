@@ -1,0 +1,11 @@
+astropy
+reproject
+specutils
+tqdm
+opencv-python
+numpy
+torch
+torchvision
+pandas
+openpyxl
+requests
