@@ -1,3 +1,7 @@
+"""
+星表操作 Made By EggTargaryen
+"""
+
 from astropy.io import fits
 from tqdm import tqdm
 

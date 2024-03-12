@@ -1,8 +1,5 @@
 """
-SDSS 测光图像操作 Made By EggTargaryen
-
-Before Using:
-    pip install astropy opencv-python numpy reproject
+测光图像操作 Made By EggTargaryen
 """
 
 import os
