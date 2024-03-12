@@ -2,7 +2,12 @@
 
 这个库里主要包含针对星表的操作
 
-[TOC]
+## 目录
+
+1. [get_header_from_fits](#get_header_from_fits)
+2. [save_fits_catalog](#save_fits_catalog)
+3. [extract_ra_dec_col_from_csv_catalog](#extract_ra_dec_col_from_csv_catalog)
+4. [build_LAMOST_position_search_file](#build_LAMOST_position_search_file)
 
 ---
 
@@ -38,4 +43,17 @@
 从`.csv`格式的星表中导出坐标
 
 ### 参数
+
+- `csv_catalog_path`：`str`；`.csv`格式星表的路径
+- `ra_col_name`：`str`；赤经坐标列对应的列名称
+- `dec_col_name`：`str`；赤纬坐标列对应的列名称
+- `split_char`：`str`，默认为`,`；`.csv`星表的分隔符
+
+### 返回
+
+`list[list[float, float]]`
+
+## build_LAMOST_position_search_file
+
+构建用于LAMOST官方以坐标和范围搜索用的文件
 
