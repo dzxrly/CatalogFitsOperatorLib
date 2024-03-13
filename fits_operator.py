@@ -1,5 +1,5 @@
 """
-测光图像操作 Made By EggTargaryen
+Fits文件操作 Made By EggTargaryen
 """
 
 import os
@@ -75,7 +75,7 @@ def fits_reproject(
     return stack_img
 
 
-def from_world_2_pixel(fits_path: str, hdu_index: int, coord: SkyCoord) -> list[float, float]:
+def from_world_2_pixel(fits_path: str, hdu_index: int, coord: SkyCoord) -> list[int]:
     """
     Convert world coordinate to pixel coordinate
     :param fits_path: str, path of FITS image, only for getting the header to convert coord
@@ -126,7 +126,7 @@ def print_cross_label_to_img(
         img: np.ndarray,
         obj_coord: SkyCoord,
         save_path: str
-):
+) -> None:
     """
     Print cross label to image
     :param fits_path: str, path of FITS image, only for getting the header to convert coord
@@ -154,7 +154,7 @@ def generate_img(fits_dir: str,
                  band_name_match_rule: callable,
                  post_process: callable) -> Tuple[Union[None, np.ndarray], Union[None, np.ndarray]]:
     """
-    Generate a image from FITS files with reproject and stack
+    Generate an image from FITS files with reproject and stack
     :param fits_dir: str, directory of FITS files
     :param hdu_index: int, HDU index
     :param target_band: str, target band
@@ -243,7 +243,7 @@ def reproject_process(
         post_process: callable = None,
         fits_file_suffix: str = '.fits.bz2',
         padding_value: float = 0.0,
-):
+) -> None:
     try:
         if os.path.exists(os.path.join(save_dir, f'{unique_id}.npy')):
             print('[Warning] {} already exists'.format(unique_id))
