@@ -391,10 +391,10 @@ def LAMOST_spec_fits_to_npy(
             flux = flux[wavelength_index]
             # if flux is all 0 or has nan, skip
             if np.all(flux == 0) or np.isnan(flux).any():
-                raise ValueError('{} flux is all 0 or has nan'.format(basename))
+                raise ValueError('flux is all 0 or has nan')
             # if wavelength len <= 0 or flux len <= 0, skip
             if len(wavelength) <= 0 or len(flux) <= 0:
-                raise ValueError('{} wavelength len <= 0 or flux len <= 0'.format(basename))
+                raise ValueError('wavelength len <= 0 or flux len <= 0')
             if filter is not None and filter(wavelength, flux):
                 spectra = np.array([wavelength, flux], dtype=np.float32)
                 np.save(os.path.join(
@@ -486,3 +486,59 @@ def DECaLS_photo_download_process(
             except Exception as e:
                 print(f'[Error] {jpg_filename} download failed: {e}')
                 return
+
+
+def DESI_fits_reader(
+        fits_path: str,
+        stack_bands: list[str],
+        hdu_index: int = 0,
+        post_process: callable = None
+) -> Union[np.ndarray, None]:
+    """
+    Read DESI photometric fits file
+    :param fits_path: str, path of fits file
+    :param stack_bands: list[str, ...], bands to stack, range from ['g', 'r', 'i', 'z']
+    :param hdu_index: int, index of HDU, default is 0
+    :param post_process: callable, post process work flow, like SqrtStretch()(MinMaxInterval()(target_data, clip=False))
+    :return: C x H x W numpy array, or None
+    """
+    try:
+        bands_projection = {
+            'g': -1,
+            'r': -1,
+            'i': -1,
+            'z': -1,
+        }
+        desi_fits = fits.open(os.path.join(fits_path))
+        head = desi_fits[hdu_index].header
+        # bands check
+        if head['BANDS']:
+            exist_bands = str(head['BANDS'])
+            band_exist_flag = 0
+            for input_band in stack_bands:
+                if input_band in exist_bands:
+                    band_exist_flag += 1
+            if band_exist_flag != len(stack_bands):
+                raise ValueError(f'Not all bands in {stack_bands} exist in {fits_path}')
+            for band_key in ['BAND{}'.format(i) for i in range(len(exist_bands))]:
+                bands_projection[head[band_key]] = int(band_key[-1])
+            # desi_fits[hdu_index].data: C x H x W
+            stack_img = [
+                desi_fits[hdu_index].data[bands_projection[band]]
+                for band in stack_bands
+            ]
+            stack_img = np.stack(stack_img, axis=0)
+            # check nan
+            if np.isnan(stack_img).any():
+                raise ValueError('contains nan')
+            # check is all 0
+            if np.all(stack_img == 0):
+                raise ValueError('all 0')
+            if post_process is not None:
+                stack_img = post_process(stack_img)
+            return stack_img
+        else:
+            raise ValueError(f'no BANDS key')
+    except Exception as e:
+        print(f'[Error] {fits_path} failed: {e}')
+        return None
