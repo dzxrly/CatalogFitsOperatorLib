@@ -177,7 +177,6 @@
 
 ### 参数
 
--
 - `spectra_region`：`SpectralRegion`；指定波长范围
 
 ### 返回
