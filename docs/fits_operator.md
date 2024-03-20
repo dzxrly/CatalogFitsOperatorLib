@@ -20,7 +20,6 @@
 16. [LAMOST_spec_fits_to_npy](#LAMOST_spec_fits_to_npy)
 17. [DECaLS_photo_download_process](#DECaLS_photo_download_process)
 18. [DESI_fits_reader](#DESI_fits_reader)
-19. [read_LAMOST_spec_SNR](#read_LAMOST_spec_SNR)
 
 ## create_dir
 
@@ -294,23 +293,11 @@ DESI测光图像转换`numpy`数组
 - `stack_bands`：`list[str]`；波段堆叠顺序
 - `hdu_index`：`int`；指定测光图像在`.fits`或`.fits.gz`文件中存储的`hdu`
 - `post_process`：`function`；对齐后对该图像的后处理操作回调函数
+- `crop_size`：`int`，默认为`None`；裁剪的尺寸，如果设置为`None`则不进行裁剪
 
 ### 返回
 
 `np.ndarray`或`None`，如果转换成功则返回`C, H, W`结构的数组，否则返回
-
-## read_LAMOST_spec_SNR
-
-读取指定波段的LAMOST光谱SNR
-
-### 参数
-
-- `lamost_spec_file_path`：`str`；LAMOST光谱的存储位置
-- `snr_band`：`str`，默认为`SNRG`；读取SNR的波段
-
-### 返回
-
-`(obsid, snr)`，返回字符串格式的LAMOST obsid和SNR
 
 ---
 

@@ -492,7 +492,8 @@ def DESI_fits_reader(
         fits_path: str,
         stack_bands: list[str],
         hdu_index: int = 0,
-        post_process: callable = None
+        post_process: callable = None,
+        crop_size: int = None,
 ) -> Union[np.ndarray, None]:
     """
     Read DESI photometric fits file
@@ -500,6 +501,7 @@ def DESI_fits_reader(
     :param stack_bands: list[str, ...], bands to stack, range from ['g', 'r', 'i', 'z']
     :param hdu_index: int, index of HDU, default is 0
     :param post_process: callable, post process work flow, like SqrtStretch()(MinMaxInterval()(target_data, clip=False))
+    :param crop_size: int, size of bbox, default is None
     :return: C x H x W numpy array, or None
     """
     try:
@@ -528,6 +530,14 @@ def DESI_fits_reader(
                 for band in stack_bands
             ]
             stack_img = np.stack(stack_img, axis=0)
+            if post_process is not None:
+                stack_img = post_process(stack_img)
+            if crop_size is not None:
+                stack_img = stack_img[
+                            :,
+                            int(stack_img.shape[1] / 2 - crop_size / 2):int(stack_img.shape[1] / 2 + crop_size / 2),
+                            int(stack_img.shape[2] / 2 - crop_size / 2):int(stack_img.shape[2] / 2 + crop_size / 2)
+                            ]
             # check nan
             if np.isnan(stack_img).any():
                 raise ValueError('contains nan')
@@ -535,8 +545,6 @@ def DESI_fits_reader(
             for i in range(stack_img.shape[0]):
                 if np.all(stack_img[i] == 0):
                     raise ValueError(f'channel {i} is all 0')
-            if post_process is not None:
-                stack_img = post_process(stack_img)
             return stack_img
         else:
             raise ValueError(f'no BANDS key')
