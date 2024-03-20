@@ -531,9 +531,10 @@ def DESI_fits_reader(
             # check nan
             if np.isnan(stack_img).any():
                 raise ValueError('contains nan')
-            # check is all 0
-            if np.all(stack_img == 0):
-                raise ValueError('all 0')
+            # check is any channel is all 0
+            for i in range(stack_img.shape[0]):
+                if np.all(stack_img[i] == 0):
+                    raise ValueError(f'channel {i} is all 0')
             if post_process is not None:
                 stack_img = post_process(stack_img)
             return stack_img
