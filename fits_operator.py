@@ -543,3 +543,17 @@ def DESI_fits_reader(
     except Exception as e:
         print(f'[Error] {fits_path} failed: {e}')
         return None
+
+
+def read_LAMOST_spec_SNR(lamost_spec_file_path: str, snr_band: str = 'SNRG') -> (str, str):
+    """
+    Read LAMOST spectrum SNR
+    :param lamost_spec_file_path: LABOST spectrum file path
+    :param snr_band: SNR band, default is 'SNRG'
+    :return: obsid, snr
+    """
+    lamost_spec = fits.open(os.path.join(lamost_spec_file_path))
+    obsid = lamost_spec[0].header['OBSID']
+    snr = lamost_spec[0].header[snr_band]
+    lamost_spec.close()
+    return str(obsid), str(snr)
