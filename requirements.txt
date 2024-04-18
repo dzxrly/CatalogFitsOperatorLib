@@ -2,6 +2,7 @@ astropy
 reproject
 specutils
 tqdm
+rich
 opencv-python
 numpy
 torch

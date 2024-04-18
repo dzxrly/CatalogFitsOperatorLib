@@ -3,7 +3,7 @@
 """
 
 from astropy.io import fits
-from tqdm import tqdm
+from tqdm.rich import tqdm
 
 
 def get_header_from_fits(

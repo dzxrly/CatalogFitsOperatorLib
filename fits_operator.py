@@ -20,7 +20,7 @@ from specutils import Spectrum1D, SpectralRegion
 from specutils.analysis import equivalent_width
 from specutils.fitting import fit_generic_continuum
 from specutils.manipulation import extract_region
-from tqdm import tqdm
+from tqdm.rich import tqdm
 
 
 def create_dir(path):
@@ -542,9 +542,9 @@ def DESI_fits_reader(
             if np.isnan(stack_img).any():
                 raise ValueError('contains nan')
             # check is any channel is all 0
-            for i in range(stack_img.shape[0]):
+            for i, band in zip(range(stack_img.shape[0]), stack_bands):
                 if np.all(stack_img[i] == 0):
-                    raise ValueError(f'channel {i} is all 0')
+                    raise ValueError(f'channel {band} is all 0')
             return stack_img
         else:
             raise ValueError(f'no BANDS key')
