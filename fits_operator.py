@@ -16,6 +16,7 @@ from astropy.io import fits
 from astropy.utils.exceptions import AstropyWarning
 from astropy.wcs import WCS
 from reproject import reproject_interp
+from rich import print
 from specutils import Spectrum1D, SpectralRegion
 from specutils.analysis import equivalent_width
 from specutils.fitting import fit_generic_continuum

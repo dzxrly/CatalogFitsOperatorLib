@@ -3,6 +3,7 @@
 """
 
 from astropy.io import fits
+from rich import print
 from tqdm.rich import tqdm
 
 
