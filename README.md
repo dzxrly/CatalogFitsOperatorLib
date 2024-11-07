@@ -1,6 +1,6 @@
-# CatalogFitsOperatorLib
-
 <div align="center">
+
+# CatalogFitsOperatorLib
 
 ![GitHub License](https://img.shields.io/github/license/dzxrly/CatalogFitsOperatorLib?style=for-the-badge)
 
