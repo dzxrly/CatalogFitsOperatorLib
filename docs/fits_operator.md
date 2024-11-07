@@ -40,8 +40,8 @@
 ### 参数
 
 - `target_fits_path`：`str`；对齐目标波段的测光图像路径
-- `other_fits_path`：`list[str, ...]`；其他波段的测光图像的路径
-- `bands_order`：`list[str, ...]`；波段堆叠顺序
+- `other_fits_path`：`list[str]`；其他波段的测光图像的路径
+- `bands_order`：`list[str]`；波段堆叠顺序
 - `hdu_index`：`int`；指定测光图像在`.fits`或`.fits.gz`文件中存储的`hdu`
 - `post_process`：`function`；对齐后对该图像的后处理操作回调函数
 
@@ -103,7 +103,7 @@
 - `fits_dir`：`str`；保存多个波段`.fits`或`.fits.gz`格式测光图像的根目录
 - `hdu_index`：`int`；指定测光图像在`.fits`或`.fits.gz`文件中存储的`hdu`
 - `target_band`：`str`；目标波段的名称
-- `other_band`：`list[str, ...]`；其他波段的名称
+- `other_band`：`list[str]`；其他波段的名称
 - `bbox_size`：`int`；裁剪的尺寸
 - `obj_coord`：`SkyCoord`；`Astropy`库中的`SkyCoord`类型的天文坐标
 - `band_name_match_rule`：`(band_name: str, fits_dir: str) => {}`；用来从输入的根目录中匹配指定波段测光图像文件的回调函数
@@ -128,7 +128,7 @@
 - `camcol`：`str`；SDSS测光星表中的字段
 - `field`：`str`；SDSS测光星表中的字段
 - `save_dir`：`str`；下载后的保存根目录
-- `band`：`list[str, ...]`，默认为`[u, g, r, i, z]`；需要下载的波段名称
+- `band`：`list[str]`，默认为`[u, g, r, i, z]`；需要下载的波段名称
 
 ### 返回
 
@@ -156,8 +156,8 @@
 - `fits_dir`：`str`；保存多个波段`.fits`或`.fits.gz`格式测光图像的根目录
 - `unique_id`：`str`；唯一id，用来在保存时避免同名覆盖
 - `target_band`：`str`；目标波段的名称
-- `other_bands`：`list[str, ...]`；其他波段的名称
-- `bands_order`：`list[str, ...]`；波段堆叠顺序
+- `other_bands`：`list[str]`；其他波段的名称
+- `bands_order`：`list[str]`；波段堆叠顺序
 - `crop_size`：`int`；裁剪后的图像大小
 - `up_sample_size`：`int`或`None`；上采样后的大小，如果设置为`None`则不进行上采样
 - `target_coord`：`SkyCoord`；`Astropy`库中的`SkyCoord`类型的天文坐标
@@ -166,6 +166,7 @@
 - `post_process`：`function`；对齐后对该图像的后处理操作回调函数
 - `fits_file_suffix`：`str`，默认为`.fits.bz2`；测光图像的文件扩展名
 - `padding_value`：`int`，默认为`0`；裁剪后如果存在空白则在空白部分填充的值
+- `png_save_dir`：`str`或`None`，默认为`None`；保存为PNG图像的路径，如果为`None`则不保存
 
 ### 返回
 
@@ -240,7 +241,7 @@
 
 ### 参数
 
-- `sub_list`：` list[str, ...]`；文件存储路径列表
+- `sub_list`：` list[str]`；文件存储路径列表
 - `npy_save_dir`：`str`；`.npy`文件存储路径
 - `spectra_region`：`SpectralRegion`；转换时按照波长切分光谱
 
@@ -254,7 +255,7 @@
 
 ### 参数
 
-- `sub_list`：` list[str, ...]`；文件存储路径列表
+- `sub_list`：` list[str]`；文件存储路径列表
 - `npy_save_dir`：`str`；`.npy`文件存储路径
 - `spectra_region`：`SpectralRegion`；转换时按照波长切分光谱
 - `filter`：`(wavelength: np.ndarray, flux: np.ndarray) => {}`；用于光谱数据后处理的回调函数
@@ -274,7 +275,7 @@ DECaLS测光图像下载工具
 - `pixscale`：`float`；DECaLS中指定的`pixscale`参数
 - `fits_save_dir`：`str`；下载的`.fits`测光图像保存目录
 - `jpg_save_dir`：`str`；下载的`.jpeg`测光图像保存目录
-- `bands`：`list[str, ...]`；下载`.fits`测光图像时需要包含的波段，仅对`.fits`测光图像生效
+- `bands`：`list[str]`；下载`.fits`测光图像时需要包含的波段，仅对`.fits`测光图像生效
 - `obsid`：`str`，默认为`None`；LAMOST中的`obsid`，用于指定唯一名称防止覆盖，可以不写或采用其他生成方式
 - `layer`：`str`，默认为`ls-dr10`；指定使用的DECaLS DR版本
 - `download_jpg`：`bool`，默认为`False`；是否下载`.jpeg`测光图像

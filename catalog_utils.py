@@ -26,7 +26,7 @@ def get_header_from_fits(
 def save_fits_catalog(
         fits_catalog_path: str,
         csv_catalog_save_path: str,
-        removed_col_names: list[str] = []
+        removed_col_names=None
 ) -> None:
     """
     convert fits catalog to csv catalog
@@ -35,6 +35,8 @@ def save_fits_catalog(
     :param removed_col_names: removed column names
     :return: None
     """
+    if removed_col_names is None:
+        removed_col_names = []
     catalog = fits.open(fits_catalog_path)
     header = get_header_from_fits(catalog[1].header)
     new_header = []

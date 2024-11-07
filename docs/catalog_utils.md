@@ -23,7 +23,7 @@
 
 ### 返回
 
-`list[str, ...]`
+`list[str]`
 
 ## save_fits_catalog
 
@@ -33,7 +33,7 @@
 
 - `fits_catalog_path`：`str`；`.fits`格式星表的路径
 - `csv_catalog_save_path`：`str`；`.csv`格式星表的存储路径
-- `removed_col_names`：`list[str, ...]`；忽略的列名称
+- `removed_col_names`：`list[str]`；忽略的列名称
 
 ### 返回
 

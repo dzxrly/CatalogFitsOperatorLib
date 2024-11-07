@@ -37,15 +37,15 @@ def create_dir(path):
 
 def fits_reproject(
         target_fits_path: str,
-        other_fits_path: list[str, ...],
-        bands_order: list[str, ...],
+        other_fits_path: list[str],
+        bands_order: list[str],
         hdu_index: int,
         post_process: callable = None) -> np.ndarray:
     """
     Reproject a FITS image to a target header
     :param target_fits_path: str, target FITS image path
-    :param other_fits_path: list[str, ...], other FITS image path
-    :param bands_order: list[str, ...], order of bands
+    :param other_fits_path: list[str], other FITS image path
+    :param bands_order: list[str], order of bands
     :param hdu_index: int, HDU index
     :param post_process: callable, post process work flow, like SqrtStretch()(MinMaxInterval()(target_data, clip=False))
     :return: C x H x W numpy array
@@ -149,7 +149,7 @@ def print_cross_label_to_img(
 def generate_img(fits_dir: str,
                  hdu_index: int,
                  target_band: str,
-                 other_band: list[str, ...],
+                 other_band: list[str],
                  bbox_size: int,
                  obj_coord: SkyCoord,
                  band_name_match_rule: callable,
@@ -159,7 +159,7 @@ def generate_img(fits_dir: str,
     :param fits_dir: str, directory of FITS files
     :param hdu_index: int, HDU index
     :param target_band: str, target band
-    :param other_band: list[str, ...], other bands
+    :param other_band: list[str], other bands
     :param bbox_size: int, size of bbox
     :param obj_coord: SkyCoord, coordinate of object, this, ra and dec
     :param band_name_match_rule: callable, a function to match band name, fits_path = band_name_match_rule(band_name, fits_dir)
@@ -189,7 +189,7 @@ def SDSS_photo_download_process(
         camcol: str,
         field: str,
         save_dir: str,
-        band: list[str, ...] = None
+        band: list[str] = None
 ) -> None:
     if band is None:
         band = ['u', 'g', 'r', 'i', 'z']
@@ -234,8 +234,8 @@ def reproject_process(
         fits_dir: str,
         unique_id: str,
         target_band: str,
-        other_bands: list[str, ...],
-        bands_order: list[str, ...],
+        other_bands: list[str],
+        bands_order: list[str],
         crop_size: int,
         up_sample_size: Union[int, None],
         target_coord: SkyCoord,
@@ -244,6 +244,7 @@ def reproject_process(
         post_process: callable = None,
         fits_file_suffix: str = '.fits.bz2',
         padding_value: float = 0.0,
+        png_save_dir: str = None,
 ) -> None:
     try:
         if os.path.exists(os.path.join(save_dir, f'{unique_id}.npy')):
@@ -309,6 +310,14 @@ def reproject_process(
             # save
             create_dir(save_dir)
             np.save(os.path.join(save_dir, f'{unique_id}.npy'), crop_img)
+            # save png
+            if png_save_dir:
+                create_dir(png_save_dir)
+                crop_img = (crop_img - crop_img.min()) / (crop_img.max() - crop_img.min())
+                cv2.imwrite(
+                    os.path.join(png_save_dir, f'{unique_id}.png'),
+                    np.transpose(crop_img * 255, (1, 2, 0)),
+                )
     except Exception as e:
         print('[Error]: Skip! {}'.format(e))
 
@@ -350,7 +359,7 @@ def read_lamost_lrs_spectrum(fits_path: str):
 
 
 def fits_to_npy_process(
-        sub_list: list[str, ...],
+        sub_list: list[str],
         npy_save_dir: str,
         spectra_region: SpectralRegion,
 ) -> None:
@@ -371,7 +380,7 @@ def fits_to_npy_process(
 
 
 def LAMOST_spec_fits_to_npy(
-        sub_list: list[str, ...],
+        sub_list: list[str],
         npy_save_dir: str,
         spectra_region: list[float, float],
         filter: callable = None,
@@ -419,7 +428,7 @@ def DECaLS_photo_download_process(
         pixscale: float,
         fits_save_dir: str,
         jpg_save_dir: str,
-        bands: list[str, ...],
+        bands: list[str],
         obsid: str = None,
         layer: str = 'ls-dr10',
         download_jpg: bool = False,
@@ -431,7 +440,7 @@ def DECaLS_photo_download_process(
     :param pixscale: pixel scale, e.g. when = 0.262, the image is 0.262 arcsec/pixel
     :param fits_save_dir: str, save directory
     :param jpg_save_dir: str, save directory, only used when download_jpg is True
-    :param bands: list[str, ...], bands to download, range from ['g', 'r', 'i', 'z']
+    :param bands: list[str], bands to download, range from ['g', 'r', 'i', 'z']
     :param obsid: str, LAMOST obsid, default is None
     :param layer: survey code, default is 'ls-dr10'
     :param download_jpg: whether download jpg photo, default is False
@@ -499,7 +508,7 @@ def DESI_fits_reader(
     """
     Read DESI photometric fits file
     :param fits_path: str, path of fits file
-    :param stack_bands: list[str, ...], bands to stack, range from ['g', 'r', 'i', 'z']
+    :param stack_bands: list[str], bands to stack, range from ['g', 'r', 'i', 'z']
     :param hdu_index: int, index of HDU, default is 0
     :param post_process: callable, post process work flow, like SqrtStretch()(MinMaxInterval()(target_data, clip=False))
     :param crop_size: int, size of bbox, default is None
