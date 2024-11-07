@@ -231,6 +231,23 @@
 
 - `fits_path`：`str`；`.fits`格式的光谱文件的存储路径
 
+- `enable_calibration`：`bool`，默认为`False`；是否进行流量定标
+
+- `sdss_calibration_template_dir_obj`：`dict`，默认为`None`；SDSS流量定标模板的存储路径, 例如:
+
+  ```json
+  {
+      'u': './filter/f1_SLOAN_SDSS.u.dat',
+      'g': './filter/f2_SLOAN_SDSS.g.dat',
+      'r': './filter/f3_SLOAN_SDSS.r.dat',
+      'i': './filter/f4_SLOAN_SDSS.i.dat',
+      'z': './filter/f5_SLOAN_SDSS.z.dat',
+  }
+  ```
+
+- `mag_type`： `str`，默认为`None`；流量定标的类型，需要符合SDSS的ugirz五个波段类型
+- `mag`：`list[float, float, float, float, float]`，默认为`None`；流量定标的值，分别对应ugirz五个波段的流量值
+
 ### 返回
 
 `(光谱文件头, 通量ndarray, 波长ndarray)`
@@ -255,10 +272,27 @@
 
 ### 参数
 
-- `sub_list`：` list[str]`；文件存储路径列表
+- `sub_list`：` list[str]`；星表
+- `obsid_index`：`int`；`obsid`在文件名中的索引
+- `file_path_index`：`int`；fits文件路径在文件名中的索引
 - `npy_save_dir`：`str`；`.npy`文件存储路径
 - `spectra_region`：`SpectralRegion`；转换时按照波长切分光谱
 - `filter`：`(wavelength: np.ndarray, flux: np.ndarray) => {}`；用于光谱数据后处理的回调函数
+- `enable_calibration`：`bool`，默认为`False`；是否进行流量定标
+- `sdss_calibration_template_dir_obj`：`dict`，默认为`None`；SDSS流量定标模板的存储路径, 例如:
+
+  ```json
+  {
+      'u': './filter/f1_SLOAN_SDSS.u.dat',
+      'g': './filter/f2_SLOAN_SDSS.g.dat',
+      'r': './filter/f3_SLOAN_SDSS.r.dat',
+      'i': './filter/f4_SLOAN_SDSS.i.dat',
+      'z': './filter/f5_SLOAN_SDSS.z.dat',
+  }
+  ```
+  
+- `mag_type_index`：`int`，默认为`None`；流量定标的类型在文件名中的索引
+- `mag_list_index`：`list[int, int, int, int, int]`，默认为`None`；流量定标的值在文件名中的索引
 
 ### 返回
 

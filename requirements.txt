@@ -10,3 +10,4 @@ torchvision
 pandas
 openpyxl
 requests
+scipy

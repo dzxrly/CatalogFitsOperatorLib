@@ -8,6 +8,7 @@ from typing import Union, Tuple
 
 import cv2
 import numpy as np
+import pandas as pd
 import requests
 import torch
 import torchvision.transforms.functional as trans_func
@@ -17,6 +18,7 @@ from astropy.utils.exceptions import AstropyWarning
 from astropy.wcs import WCS
 from reproject import reproject_interp
 from rich import print
+from scipy import interpolate
 from specutils import Spectrum1D, SpectralRegion
 from specutils.analysis import equivalent_width
 from specutils.fitting import fit_generic_continuum
@@ -345,16 +347,27 @@ def get_csv_header_col_name(csv_file_path: str) -> list:
     return header.split(',')
 
 
-def read_lamost_lrs_spectrum(fits_path: str):
-    """
-    Read LAMOST LRS spectrum from fits file.
-    :param fits_path:
-    :return:
-    """
-    hdulist = fits.open(fits_path)
-    header = hdulist[1].header
-    flux = hdulist[1].data['FLUX']
-    wavelength = hdulist[1].data['WAVELENGTH']
+def read_lamost_lrs_spectrum(
+        fits_path: str,
+        enable_calibration: bool = False,
+        sdss_calibration_template_dir_obj: dict = None,
+        mag_type: str = None,
+        mag_list: list[float, float, float, float, float] = None,
+):
+    if not enable_calibration:
+        hdulist = fits.open(fits_path)
+        header = hdulist[1].header
+        flux = hdulist[1].data['FLUX']
+        wavelength = hdulist[1].data['WAVELENGTH']
+    else:
+        spec = LAMOSTSpec(
+            fits_path,
+            sdss_calibration_template_dir_obj=sdss_calibration_template_dir_obj,
+            mag_type=mag_type,
+            mag_list=mag_list,
+        )
+        header = spec.hdr
+        wavelength, flux = spec.flux_calibration()
     return header, wavelength, flux
 
 
@@ -381,17 +394,36 @@ def fits_to_npy_process(
 
 def LAMOST_spec_fits_to_npy(
         sub_list: list[str],
+        obsid_index: int,
+        file_path_index: int,
         npy_save_dir: str,
         spectra_region: list[float, float],
         filter: callable = None,
+        enable_calibration: bool = False,
+        sdss_calibration_template_dir_obj: dict = None,
+        mag_type_index: int = None,
+        mag_list_index: list[int, int, int, int, int] = None,
 ) -> None:
-    for fits_file_path in tqdm(sub_list, ncols=150):
-        basename = os.path.basename(fits_file_path).split('.')[0]
+    for row_content in tqdm(sub_list, ncols=150):
+        basename = str(row_content[obsid_index])
         # check if npy file exists
         if os.path.exists(os.path.join(npy_save_dir, f'{basename}.npy')):
             continue
         try:
-            header, wavelength, flux = read_lamost_lrs_spectrum(fits_file_path)
+            header, wavelength, flux = read_lamost_lrs_spectrum(
+                row_content[file_path_index],
+                enable_calibration=enable_calibration,
+                sdss_calibration_template_dir_obj=sdss_calibration_template_dir_obj,
+                mag_type=row_content[
+                    mag_type_index] if mag_type_index is not None else None,
+                mag_list=[
+                    float(row_content[mag_list_index[0]]),
+                    float(row_content[mag_list_index[1]]),
+                    float(row_content[mag_list_index[2]]),
+                    float(row_content[mag_list_index[3]]),
+                    float(row_content[mag_list_index[4]]),
+                ] if mag_list_index is not None else None,
+            )
             # cut spectrum to keep only the region of interest
             wavelength_index = np.where(
                 (wavelength >= spectra_region[0]) &
@@ -575,3 +607,204 @@ def read_LAMOST_spec_SNR(lamost_spec_file_path: str, snr_band: str = 'SNRG') -> 
     snr = lamost_spec[0].header[snr_band]
     lamost_spec.close()
     return str(obsid), str(snr)
+
+
+class LAMOSTSpec:
+    """
+    A simple class to load LAMOST spectrum.
+    """
+
+    def __init__(self,
+                 fits_file_path: str,
+                 sdss_calibration_template_dir_obj: dict,
+                 redshift: float = None,
+                 version: str = 'New',
+                 mag_type: str = None,
+                 mag_list: list[float, float, float, float, float] = None,
+                 ):
+        hdu = fits.open(fits_file_path)
+        basename = os.path.basename(fits_file_path)
+        self.basename = basename
+        hdr = hdu[0].header
+        self.hdr = hdr
+        self.wave_list = np.array([3557, 4825, 6261, 7672, 9097])  # ugriz
+        self.mag_obj = {
+            'selected_wave': [],
+            'selected_mag': [],
+            'selected_band': [],
+        }
+        self.filter_curve_list, self.filter_curve_fit_list = self.get_curve(
+            filter_dir_obj=sdss_calibration_template_dir_obj)
+        if redshift is None:
+            try:
+                redshift = hdr['Z']
+            except:
+                raise ValueError('Redshift not provided. ' +
+                                 'Please check the input parameters carefully.')
+        self.redshift = redshift
+        if mag_type is None or mag_list is None:
+            if hdr['MAGTYPE'] == 'ugriz':
+                if hdr['MAG1'] > -900:
+                    self.mag_obj['selected_wave'].append(3557)
+                    self.mag_obj['selected_mag'].append(hdr['MAG1'])
+                    self.mag_obj['selected_band'].append('u')
+                if hdr['MAG2'] > -900:
+                    self.mag_obj['selected_wave'].append(4825)
+                    self.mag_obj['selected_mag'].append(hdr['MAG2'])
+                    self.mag_obj['selected_band'].append('g')
+                if hdr['MAG3'] > -900:
+                    self.mag_obj['selected_wave'].append(6261)
+                    self.mag_obj['selected_mag'].append(hdr['MAG3'])
+                    self.mag_obj['selected_band'].append('r')
+                if hdr['MAG4'] > -900:
+                    self.mag_obj['selected_wave'].append(7672)
+                    self.mag_obj['selected_mag'].append(hdr['MAG4'])
+                    self.mag_obj['selected_band'].append('i')
+                if hdr['MAG5'] > -900:
+                    self.mag_obj['selected_wave'].append(9097)
+                    self.mag_obj['selected_mag'].append(hdr['MAG5'])
+                    self.mag_obj['selected_band'].append('z')
+            else:
+                raise ValueError('MAGTYPE not recognized. Unable to calibrate the spectrum.')
+        elif mag_type is not None and mag_list is not None:
+            if mag_list[0] is not None and -900 < mag_list[0] < 99:
+                self.mag_obj['selected_wave'].append(3557)
+                self.mag_obj['selected_mag'].append(mag_list[0])
+                self.mag_obj['selected_band'].append('u')
+            if mag_list[1] is not None and -900 < mag_list[1] < 99:
+                self.mag_obj['selected_wave'].append(4825)
+                self.mag_obj['selected_mag'].append(mag_list[1])
+                self.mag_obj['selected_band'].append('g')
+            if mag_list[2] is not None and -900 < mag_list[2] < 99:
+                self.mag_obj['selected_wave'].append(6261)
+                self.mag_obj['selected_mag'].append(mag_list[2])
+                self.mag_obj['selected_band'].append('r')
+            if mag_list[3] is not None and -900 < mag_list[3] < 99:
+                self.mag_obj['selected_wave'].append(7672)
+                self.mag_obj['selected_mag'].append(mag_list[3])
+                self.mag_obj['selected_band'].append('i')
+            if mag_list[4] is not None and -900 < mag_list[4] < 99:
+                self.mag_obj['selected_wave'].append(9097)
+                self.mag_obj['selected_mag'].append(mag_list[4])
+                self.mag_obj['selected_band'].append('z')
+        else:
+            raise ValueError('Header MAGTYPE not recognized, and mag_type and mag_list are not provided.')
+        if len(self.mag_obj['selected_wave']) <= 1 or len(self.mag_obj['selected_mag']) <= 1 or len(
+                self.mag_obj['selected_band']) <= 1:
+            raise ValueError('No enough magnitude information in the header.')
+
+        if version == 'New':
+            data = hdu[1].data
+            hdu.close()
+            wave = data['WAVELENGTH'][0]
+            flux = data['FlUX'][0]
+            ivar = pd.Series(data['IVAR'][0])
+        else:
+            data = hdu[0].data
+            hdu.close()
+            wave = data[2]
+            flux = data[0]
+            ivar = pd.Series(data[1])
+        ivar.replace(0, np.nan, inplace=True)
+        ivar_safe = ivar.interpolate()
+        err = 1. / np.sqrt(ivar_safe.values)
+        flux *= 1e-17
+        err *= 1e-17
+        self.wave = wave
+        self.flux = flux
+        self.err = err
+        self.flux_calibrated = False
+        self.flux_rescaled = None
+        self.err_rescaled = None
+
+    @staticmethod
+    def get_curve(filter_dir_obj: dict) -> tuple[dict, dict]:
+        """
+        filter_dir_obj: like {
+            'u': 'u.dat',
+            'g': 'g.dat',
+            'r': 'r.dat',
+            'i': 'i.dat',
+            'z': 'z.dat',
+        }
+        """
+        filter_fn_list = {
+            'u': None,
+            'g': None,
+            'r': None,
+            'i': None,
+            'z': None,
+        }
+        filter_curve_list = {
+            'u': None,
+            'g': None,
+            'r': None,
+            'i': None,
+            'z': None,
+        }
+        filter_curve_fit_list = {
+            'u': None,
+            'g': None,
+            'r': None,
+            'i': None,
+            'z': None,
+        }
+        for file_key in filter_dir_obj:
+            fn = os.path.join(filter_dir_obj[file_key])
+            filter_fn_list[file_key] = fn
+            filter_curve = np.loadtxt(str(fn))
+            filter_curve_list[file_key] = filter_curve
+            filter_f = interpolate.interp1d(filter_curve[:, 0], filter_curve[:, 1])
+            filter_curve_fit_list[file_key] = filter_f
+        return filter_curve_list, filter_curve_fit_list
+
+    @staticmethod
+    def synthetic_photo(
+            model_wave: np.ndarray,
+            model_flux: np.ndarray,
+            filter_curve_list: dict,
+            filter_curve_fit_list: dict,
+            filter_array_index: list[str],
+    ) -> np.ndarray:
+        """
+        work in the observed frame
+        calculated the synthetic gri magnitudes from LAMOST spectra
+        input flux is the original relative flux from LAMOST
+        """
+        c = 3e18  # in units of A/s
+        photometry_list = np.zeros(len(filter_array_index))
+        photometry_list_index = 0
+        for filter_key in filter_array_index:
+            filter_curve = filter_curve_list[filter_key]
+            filter_curve_fit = filter_curve_fit_list[filter_key]
+            filter_mask = (model_wave < filter_curve[-1, 0]) & (model_wave > filter_curve[0, 0])
+            wave = model_wave[filter_mask]
+            flux = model_flux[filter_mask]
+            transmission = filter_curve_fit(wave)
+            n = len(flux)
+            if n != 0 and n != 1:
+                sum_flambda = np.trapz(flux * transmission * wave, wave)
+                sum_transmission = np.trapz(transmission * c / wave, wave)
+                photometry_list[photometry_list_index] = -2.5 * np.log10(sum_flambda / sum_transmission) - 48.6
+            else:
+                photometry_list[photometry_list_index] = 0
+            photometry_list_index += 1
+        return photometry_list
+
+    def flux_calibration(self, order=0):
+        lamost_mag = self.synthetic_photo(
+            self.wave,
+            self.flux,
+            self.filter_curve_list,
+            self.filter_curve_fit_list,
+            self.mag_obj['selected_band'],
+        )
+        sdss_mag = np.array(self.mag_obj['selected_mag'])
+        mag_diff = sdss_mag - lamost_mag
+        coeffs = np.polyfit(np.asarray(self.mag_obj['selected_wave']), mag_diff, order)
+        lamost_flux_rescaled = self.flux * 10 ** (np.polyval(coeffs, self.wave) * (-0.4))
+        lamost_flux_err = self.err * 10 ** (np.polyval(coeffs, self.wave) * (-0.4))
+        self.flux_rescaled = lamost_flux_rescaled
+        self.err_rescaled = lamost_flux_err
+        self.flux_calibrated = True
+        return self.wave, self.flux_rescaled
