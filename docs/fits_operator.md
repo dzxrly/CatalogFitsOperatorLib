@@ -290,7 +290,7 @@
       'z': './filter/f5_SLOAN_SDSS.z.dat',
   }
   ```
-  
+
 - `mag_type_index`：`int`，默认为`None`；流量定标的类型在文件名中的索引
 - `mag_list_index`：`list[int, int, int, int, int]`，默认为`None`；流量定标的值在文件名中的索引
 
