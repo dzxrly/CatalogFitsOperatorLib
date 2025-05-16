@@ -276,7 +276,6 @@
 - `filter`：`(wavelength: np.ndarray, flux: np.ndarray) => {}`；用于光谱数据后处理的回调函数
 - `enable_calibration`：`bool`，默认为`False`；是否进行流量定标
 - `sdss_calibration_template_dir_obj`：`dict`，默认为`None`；SDSS流量定标模板的存储路径, 例如:
-
   ```json
   {
       'u': './filter/f1_SLOAN_SDSS.u.dat',
@@ -286,7 +285,6 @@
       'z': './filter/f5_SLOAN_SDSS.z.dat',
   }
   ```
-
 - `mag_type_index`：`int`，默认为`None`；流量定标的类型在文件名中的索引
 - `mag_list_index`：`list[int, int, int, int, int]`，默认为`None`；流量定标的值在文件名中的索引
 

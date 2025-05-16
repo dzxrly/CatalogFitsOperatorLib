@@ -89,8 +89,7 @@
 
 ## byte_by_byte_table_description
 
-将天文数据发布中类似[apjs519525t4_mrt.txt](./sample/apjs519525t4_mrt.txt)的星表转换为`.csv`
-格式，其中输入的原始星表只包含数据行！
+将天文数据发布中类似[apjs519525t4_mrt.txt](./sample/apjs519525t4_mrt.txt)的星表转换为`.csv`格式，其中输入的原始星表只包含数据行！
 
 ### 参数
 
