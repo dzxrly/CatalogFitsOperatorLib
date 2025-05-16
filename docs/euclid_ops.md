@@ -8,6 +8,7 @@
 4. [download_full_tile_product](#download_full_tile_product)
 5. [download_cutout_by_full_info](#download_cutout_by_full_info)
 6. [download_cutout_by_product](#download_cutout_by_product)
+7. [download_cutout_batch](#download_cutout_batch)
 
 ---
 
@@ -102,6 +103,27 @@
 ### 返回
 
 - `str | None`：下载的Fits文件路径，如果下载失败则返回`None`
+
+## download_cutout_batch
+
+### 参数
+
+- `ra`：`float | str`；CUTOUT的赤经中心点
+- `dec`：`float | str`；CUTOUT的赤纬中心点
+- `radius`：`float | str`；CUTOUT的半径（角秒）
+- `data_server_url`：`str`；数据服务器URL，例如"/euclid/repository_idr/iqr1"
+- `data_type`：`str`；数据类型，例如"MER"
+- `save_dir`：`str`；保存路径
+- `include_bands`：`list[str]`；要包含的波段列表，可选值为["VIS", "NIR-Y/J/H", "DES-G/R/I/Z"]
+- `skip_when_band_not_found`：`bool`；当找不到指定波段时是否跳过，默认为`True`
+- `obs_id`：`str | int | None`；观测目标ID，默认为`None`
+- `tile_index`：`str | int | None`；观测分片ID，默认为`None`
+- `product_type`：`str`；Euclid数据发布类型，默认为`DpdMerBksMosaic`
+- `verbose`：`bool | None`；是否打印详细信息，默认为`None`，即跟随`EuclidClass`的设置
+
+### 返回
+
+- `None`
 
 ---
 

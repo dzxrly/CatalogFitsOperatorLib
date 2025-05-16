@@ -5,6 +5,7 @@ import astropy.units as u
 import pandas as pd
 from astropy.coordinates import SkyCoord
 from astroquery.esa.euclid import EuclidClass
+from rich import print
 
 
 class EuclidOps:
@@ -275,3 +276,100 @@ class EuclidOps:
         except Exception as e:
             print(f"[ERROR] downloading cutout product: {e}")
             return None
+
+    def download_cutout_batch(
+        self,
+        ra: float | str,
+        dec: float | str,
+        radius: float | str,
+        data_server_url: str,
+        data_type: str,
+        save_dir: str,
+        include_bands: list[str],
+        skip_when_band_not_found: bool = True,
+        obs_id: str | int | None = None,
+        tile_index: str | int | None = None,
+        product_type: str = "DpdMerBksMosaic",
+        verbose: bool = None,
+    ) -> None:
+        """
+        Download a list of cutout products from the Euclid database.
+
+        Parameters
+        ----------
+        ra : float | str
+            The right ascension of the cutout center.
+        dec : float | str
+            The declination of the cutout center.
+        radius : float | str
+            The radius of the cutout in arcseconds.
+        data_server_url : str
+            The URL of the data server. Such as "/euclid/repository_idr/iqr1"
+        data_type : str
+            The type of data to be downloaded. Such as "MER"
+        save_dir : str
+            The directory where the cutout products will be saved.
+        include_bands : list[str]
+            List of bands to include in the cutout products. Choose from ["VIS", "NIR-Y/J/H", "DES-G/R/I/Z"].
+        skip_when_band_not_found : bool
+            If True, skip the cutout product if the band is not found. Default is True.
+        obs_id : str | int | None
+            The observation ID. If None, the tile index will be used.
+        tile_index : str | int | None
+            The tile index. If None, the observation ID will be used.
+        product_type : str
+            The type of product to be fetched. Default is "DpdMerBksMosaic".
+        verbose : bool
+            If True, print verbose output.
+        """
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        # fetch the product list
+        product_list_results = self.fetch_product_list(
+            obs_id=obs_id,
+            tile_index=tile_index,
+            product_type=product_type,
+            verbose=verbose,
+            to_list=True,
+        )
+        if verbose:
+            print(product_list_results)
+        # check if the product list is empty and band is in the list
+        if product_list_results.empty:
+            raise ValueError(
+                f"[ERROR] No product found for obs_id: {obs_id} or tile_index: {tile_index}"
+            )
+        _temp_res = []
+        for _product in product_list_results:
+            _leak_band_flag = True
+            for band in include_bands:
+                if band in _product["file_name"]:
+                    _temp_res.append(_product)
+                    _leak_band_flag = False
+                    break
+            if _leak_band_flag and not skip_when_band_not_found:
+                raise ValueError(
+                    f"[ERROR] Leak bands for obs_id: {obs_id} or tile_index: {tile_index}"
+                )
+        if len(_temp_res) == 0:
+            raise ValueError(
+                f"[ERROR] No product found for obs_id: {obs_id} or tile_index: {tile_index}"
+            )
+        # download the cutout products
+        for _product in _temp_res:
+            file_name = _product["file_name"]
+            saved_cutout_filepath = self.download_cutout_by_product(
+                ra=ra,
+                dec=dec,
+                radius=radius,
+                data_server_url=data_server_url,
+                data_type=data_type,
+                product_info=_product,
+                file_name=file_name,
+                save_dir=save_dir,
+                verbose=verbose,
+            )
+            if saved_cutout_filepath is None:
+                raise ValueError(
+                    f"[ERROR] cutout product {file_name} not found for obs_id: {obs_id} or tile_index: {tile_index}"
+                )
