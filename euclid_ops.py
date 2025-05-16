@@ -334,11 +334,6 @@ class EuclidOps:
         )
         if verbose:
             print(product_list_results)
-        # check if the product list is empty and band is in the list
-        if product_list_results.empty:
-            raise ValueError(
-                f"[ERROR] No product found for obs_id: {obs_id} or tile_index: {tile_index}"
-            )
         _temp_res = []
         for _product in product_list_results:
             _leak_band_flag = True
