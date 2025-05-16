@@ -182,12 +182,12 @@ class EuclidOps:
             radius = float(radius) * u.arcsec
             saved_cutout_filepath = self.euclid.get_cutout(
                 file_path=os.path.join(
-                    data_server_url,
-                    data_release,
-                    data_type,
-                    tile_id,
-                    instrument,
-                    file_name,
+                    str(data_server_url),
+                    str(data_release),
+                    str(data_type),
+                    str(tile_id),
+                    str(instrument),
+                    str(file_name),
                 ),
                 instrument=instrument,
                 id=tile_id,
@@ -254,12 +254,12 @@ class EuclidOps:
             radius = float(radius) * u.arcsec
             saved_cutout_filepath = self.euclid.get_cutout(
                 file_path=os.path.join(
-                    data_server_url,
-                    product_info["release_name"],
-                    data_type,
-                    product_info["tile_index"],
-                    product_info["instrument_name"],
-                    file_name,
+                    str(data_server_url),
+                    str(product_info["release_name"]),
+                    str(data_type),
+                    str(product_info["tile_index"]),
+                    str(product_info["instrument_name"]),
+                    str(file_name),
                 ),
                 instrument=product_info["instrument_name"],
                 id=product_info["tile_index"],
