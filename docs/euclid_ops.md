@@ -41,8 +41,7 @@
 
 - `obs_id`: `str | int | None`；观测目标ID，即`observation id`，默认为`None`
 - `tile_index`: `str | int | None`；观测分片ID，即`tile id`，默认为`None`。`obs_id`和`tile_id`不能同时为`None`且只能选择一项设置
-- `product_type`: `str`；Euclid数据发布类型，默认为`DpdMerBksMosaic`
-  ，具体请参考[EuclidClass.get_product_list](https://astroquery.readthedocs.io/en/latest/_modules/astroquery/esa/euclid/core.html#EuclidClass.get_product_list)
+- `product_type`: `str`；Euclid数据发布类型，默认为`DpdMerBksMosaic`，具体请参考[EuclidClass.get_product_list](https://astroquery.readthedocs.io/en/latest/_modules/astroquery/esa/euclid/core.html#EuclidClass.get_product_list)
 - `verbose`：`bool | None`；是否打印详细信息，默认为`None`，即跟随`EuclidClass`的设置
 - `to_list`：`bool`；是否将结果转换为字典类列表，默认为`False`
 
@@ -56,8 +55,7 @@
 
 - `file_name`: `str`；Euclid Fits文件名称
 - `save_dir`: `str`；保存路径
-- `schema`: `str`；Euclid Schema，默认为`sedm`
-  ，具体请参考[EuclidClass.get_product](https://astroquery.readthedocs.io/en/latest/_modules/astroquery/esa/euclid/core.html#EuclidClass.get_product)
+- `schema`: `str`；Euclid Schema，默认为`sedm`，具体请参考[EuclidClass.get_product](https://astroquery.readthedocs.io/en/latest/_modules/astroquery/esa/euclid/core.html#EuclidClass.get_product)
 - `verbose`：`bool | None`；是否打印详细信息，默认为`None`，即跟随`EuclidClass`的设置
 
 ### 返回

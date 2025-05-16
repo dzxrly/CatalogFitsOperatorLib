@@ -93,10 +93,7 @@
 
 ### 参数
 
-- `table_header_description`：`dict`；原始星表的描述字典，其结构类似
-  `{'col_name': [start_byte, end_byte]} or {'col_name': [start_byte]}`
-  ，例如[apjs519525t4_mrt.txt](./sample/apjs519525t4_mrt.txt)中的`1- 38 A38 --- File     LAMOST 1D FITS file name`可写为
-  `'File': [1, 38]`
+- `table_header_description`：`dict`；原始星表的描述字典，其结构类似`{'col_name': [start_byte, end_byte]} or {'col_name': [start_byte]}`，例如[apjs519525t4_mrt.txt](./sample/apjs519525t4_mrt.txt)中的`1- 38 A38 --- File     LAMOST 1D FITS file name`可写为`'File': [1, 38]`
 - `table_content`：`list`；原始星表的数据行数组
 - `start_byte`：`int`，默认为`0`；数据行起始位置，如无必要请勿修改
 - `enable_strip`：`bool`，默认为`True`；是否自动删除每行前后的空格
