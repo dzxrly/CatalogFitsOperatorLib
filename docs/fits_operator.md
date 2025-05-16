@@ -1,6 +1,6 @@
 # fits_operator.py
 
-该库中主要含有对`.fits`以及`.fits.gz`格式的光谱和测光数据的操作：
+含有对`.fits`以及`.fits.gz`格式的光谱和测光数据的操作：
 
 1. [create_dir](#create_dir)
 2. [fits_reproject](#fits_reproject)
@@ -111,8 +111,8 @@
 
 ### 返回
 
-`Tuple[Union[None, np.ndarray], Union[None, np.ndarray]]`，返回**裁剪后的测光图像**与**只经过堆叠的测光图像**
-，如果不存在则对应返回`None`
+`Tuple[Union[None, np.ndarray], Union[None, np.ndarray]]`，返回**裁剪后的测光图像**与**只经过堆叠的测光图像**，如果不存在则对应返回
+`None`
 
 ## SDSS_photo_download_process
 
@@ -230,11 +230,8 @@
 ### 参数
 
 - `fits_path`：`str`；`.fits`格式的光谱文件的存储路径
-
 - `enable_calibration`：`bool`，默认为`False`；是否进行流量定标
-
 - `sdss_calibration_template_dir_obj`：`dict`，默认为`None`；SDSS流量定标模板的存储路径, 例如:
-
   ```json
   {
       'u': './filter/f1_SLOAN_SDSS.u.dat',
@@ -244,7 +241,6 @@
       'z': './filter/f5_SLOAN_SDSS.z.dat',
   }
   ```
-
 - `mag_type`： `str`，默认为`None`；流量定标的类型，需要符合SDSS的ugirz五个波段类型
 - `mag`：`list[float, float, float, float, float]`，默认为`None`；流量定标的值，分别对应ugirz五个波段的流量值
 

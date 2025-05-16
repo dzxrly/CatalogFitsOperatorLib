@@ -8,6 +8,10 @@
 
 自用天文星表、fits格式光谱与测光图像处理库
 
+## Python 限制
+
+- Python 3.10+
+
 ## 安装
 
 1. `git clone https://github.com/dzxrly/CatalogFitsOperatorLib.git`
@@ -25,3 +29,5 @@
 - [catalog_utils.py](./docs/catalog_utils.md)
 
 - [fits_operator.py](./docs/fits_operator.md)
+
+- [euclid_ops.py](./docs/euclid_ops.md)

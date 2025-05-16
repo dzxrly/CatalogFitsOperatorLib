@@ -11,3 +11,4 @@ pandas
 openpyxl
 requests
 scipy
+astroquery
