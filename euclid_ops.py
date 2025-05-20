@@ -1,11 +1,83 @@
 import datetime
 import os.path
+import re
 
 import astropy.units as u
 import pandas as pd
 from astropy.coordinates import SkyCoord
 from astroquery.esa.euclid import EuclidClass
 from rich import print
+
+
+def modify_adql_query(query: str, object_ids: list[str | int]) -> str:
+    """
+    Modify an ADQL query by adding object_id equality constraints to the main table's WHERE clause.
+
+    Parameters
+    ----------
+    query : str
+        Input ADQL query string to be modified.
+    object_ids : list of str or int
+        List of object IDs to include in the equality constraints.
+
+    Returns
+    -------
+    str
+        Modified ADQL query with the new object_id equality constraints added to the WHERE clause.
+    """
+    if not object_ids:
+        raise ValueError("object_ids list cannot be empty")
+
+    # Normalize whitespace to simplify parsing
+    normalized_query = " ".join(query.split())
+
+    # Find the main table alias (FROM clause)
+    from_match = re.search(
+        r"FROM\s+([^\s]+)\s+AS\s+([^\s]+)", normalized_query, re.IGNORECASE
+    )
+    if not from_match:
+        raise ValueError("Could not identify main table and alias in FROM clause")
+
+    main_table = from_match.group(1)
+    main_alias = from_match.group(2)
+
+    # Prepare new condition with object_id equality constraints
+    # Convert IDs to strings and ensure proper quoting for strings
+    conditions = [
+        (
+            f"{main_alias}.object_id = {id!r}"
+            if isinstance(id, str)
+            else f"{main_alias}.object_id = {id}"
+        )
+        for id in object_ids
+    ]
+    new_condition = " OR ".join(conditions)
+
+    # Find and modify WHERE clause
+    where_match = re.search(
+        r"WHERE\s+(.+?)(?=(?:\s+INNER\s+JOIN|$))",
+        normalized_query,
+        re.IGNORECASE | re.DOTALL,
+    )
+    if where_match:
+        # WHERE clause exists, append new condition
+        original_where = where_match.group(1).strip()
+        modified_where = f"WHERE {original_where} AND ({new_condition})"
+        # Replace original WHERE clause with modified one
+        modified_query = (
+            normalized_query[: where_match.start()]
+            + modified_where
+            + normalized_query[where_match.end() :]
+        )
+    else:
+        # No WHERE clause, add one after FROM clause
+        from_end = from_match.end()
+        modified_query = (
+            normalized_query[:from_end]
+            + f" WHERE {new_condition}"
+            + normalized_query[from_end:]
+        )
+    return modified_query
 
 
 class EuclidOps:
