@@ -9,6 +9,7 @@
 5. [download_cutout_by_full_info](#download_cutout_by_full_info)
 6. [download_cutout_by_product](#download_cutout_by_product)
 7. [download_cutout_batch](#download_cutout_batch)
+8. [download_spectrum](#download_spectrum)
 
 ---
 
@@ -119,6 +120,20 @@
 - `obs_id`：`str | int | None`；观测目标ID，默认为`None`
 - `tile_index`：`str | int | None`；观测分片ID，默认为`None`
 - `product_type`：`str`；Euclid数据发布类型，默认为`DpdMerBksMosaic`
+- `verbose`：`bool | None`；是否打印详细信息，默认为`None`，即跟随`EuclidClass`的设置
+
+### 返回
+
+- `None`
+
+## download_spectrum
+
+### 参数
+
+- `source_id`：`str | int`；观测目标ID
+- `save_dir`：`str`；保存路径
+- `retrieval_type`：`str`；检索类型，可选值为["ALL", "SPECTRA_BGS", "SPECTRA_RGS"]，默认为"ALL"
+- `schema`：`str`；数据发布名称，默认为"sedm"
 - `verbose`：`bool | None`；是否打印详细信息，默认为`None`，即跟随`EuclidClass`的设置
 
 ### 返回

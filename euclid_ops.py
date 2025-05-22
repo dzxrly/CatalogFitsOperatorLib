@@ -440,3 +440,45 @@ class EuclidOps:
                 raise ValueError(
                     f"[ERROR] cutout product {file_name} not found for obs_id: {obs_id} or tile_index: {tile_index}"
                 )
+
+    def download_spectrum(
+        self,
+        source_id: str | int,
+        save_dir: str,
+        retrieval_type: str = "ALL",
+        schema: str = "sedm",
+        verbose: bool = None,
+    ) -> None:
+        """
+        Download the spectrum product from the Euclid database.
+
+        Parameters
+        ----------
+        source_id : str | int
+            The source ID.
+        save_dir : str
+            The directory where the spectrum product will be saved.
+        retrieval_type : str
+            The type of retrieval, choose in ["ALL", "SPECTRA_BGS", "SPECTRA_RGS"]. Default is "ALL".
+        schema : str
+            The data release name (schema) in which the product should be searched. Default is "sedm".
+        verbose : bool
+            If True, print verbose output.
+        """
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        # download the spectrum product
+        try:
+            self.euclid.get_spectrum(
+                source_id=source_id,
+                output_file=os.path.join(
+                    save_dir,
+                    f"{schema}_{source_id}_{retrieval_type}",
+                    f"{schema}_{source_id}_{retrieval_type}.zip",
+                ),
+                retrieval_type=retrieval_type,
+                schema=schema,
+                verbose=self.verbose if verbose is None else verbose,
+            )
+        except Exception as e:
+            print(f"[ERROR] downloading spectrum product: {e}")
