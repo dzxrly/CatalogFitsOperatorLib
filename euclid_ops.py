@@ -287,6 +287,7 @@ class EuclidOps:
         product_info: dict,
         file_name: str,
         save_dir: str,
+        skip_when_exists: bool = True,
         verbose: bool = None,
     ) -> str | None:
         """
@@ -313,6 +314,8 @@ class EuclidOps:
             The name of the file to be downloaded.
         save_dir : str
             The directory where the file will be saved.
+        skip_when_exists : bool
+            If True, skip the download if the file already exists in the save directory.
         verbose : bool
             If True, print verbose output.
         """
@@ -324,20 +327,34 @@ class EuclidOps:
                 frame="icrs",
             )
             radius = float(radius) * u.arcsec
+            file_path = os.path.join(
+                str(data_server_url),
+                str(product_info["release_name"]),
+                str(data_type),
+                str(product_info["tile_index"]),
+                str(product_info["instrument_name"]),
+                str(file_name),
+            )
+            save_path = os.path.join(
+                save_dir, f"{file_name}_CUTOUT.fits"
+            )
+            # if skip_when_exists is True and the file already exists & size > 0,
+            # then skip the download
+            if (
+                skip_when_exists
+                and os.path.exists(save_path)
+                and os.path.getsize(save_path)
+                > 0
+            ):
+                print(f"[INFO] cutout product {file_name} already exists in {save_path}, skipping.")
+                return save_path
             saved_cutout_filepath = self.euclid.get_cutout(
-                file_path=os.path.join(
-                    str(data_server_url),
-                    str(product_info["release_name"]),
-                    str(data_type),
-                    str(product_info["tile_index"]),
-                    str(product_info["instrument_name"]),
-                    str(file_name),
-                ),
+                file_path=file_path,
                 instrument=product_info["instrument_name"],
                 id=product_info["tile_index"],
                 coordinate=coord,
                 radius=radius,
-                output_file=os.path.join(save_dir, f"{file_name}_CUTOUT.fits"),
+                output_file=save_path,
                 verbose=self.verbose if verbose is None else verbose,
             )
             if saved_cutout_filepath is not None:
@@ -359,6 +376,7 @@ class EuclidOps:
         save_dir: str,
         include_bands: list[str],
         skip_when_band_not_found: bool = True,
+        skip_when_exists: bool = True,
         obs_id: str | int | None = None,
         tile_index: str | int | None = None,
         product_type: str = "DpdMerBksMosaic",
@@ -385,6 +403,8 @@ class EuclidOps:
             List of bands to include in the cutout products. Choose from ["VIS", "NIR-Y/J/H", "DES-G/R/I/Z"].
         skip_when_band_not_found : bool
             If True, skip the cutout product if the band is not found. Default is True.
+        skip_when_exists : bool
+            If True, skip the download if the file already exists in the save directory. Default is True.
         obs_id : str | int | None
             The observation ID. If None, the tile index will be used.
         tile_index : str | int | None
@@ -434,6 +454,7 @@ class EuclidOps:
                 product_info=_product,
                 file_name=file_name,
                 save_dir=save_dir,
+                skip_when_exists=skip_when_exists,
                 verbose=verbose,
             )
             if saved_cutout_filepath is None:

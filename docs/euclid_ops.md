@@ -99,6 +99,7 @@
     - `release_name`：发布名称
 - `file_name`：`str`；要下载的文件名
 - `save_dir`：`str`；保存路径
+- `skip_when_exists`：`bool`；当文件已存在时是否跳过下载，默认为`True`
 - `verbose`：`bool | None`；是否打印详细信息，默认为`None`，即跟随`EuclidClass`的设置
 
 ### 返回
@@ -117,6 +118,7 @@
 - `save_dir`：`str`；保存路径
 - `include_bands`：`list[str]`；要包含的波段列表，可选值为["VIS", "NIR-Y/J/H", "DES-G/R/I/Z"]
 - `skip_when_band_not_found`：`bool`；当找不到指定波段时是否跳过，默认为`True`
+- `skip_when_exists`：`bool`；当文件已存在时是否跳过下载，默认为`True`
 - `obs_id`：`str | int | None`；观测目标ID，默认为`None`
 - `tile_index`：`str | int | None`；观测分片ID，默认为`None`
 - `product_type`：`str`；Euclid数据发布类型，默认为`DpdMerBksMosaic`
