@@ -335,18 +335,17 @@ class EuclidOps:
                 str(product_info["instrument_name"]),
                 str(file_name),
             )
-            save_path = os.path.join(
-                save_dir, f"{file_name}_CUTOUT.fits"
-            )
+            save_path = os.path.join(save_dir, f"{file_name}_CUTOUT.fits")
             # if skip_when_exists is True and the file already exists & size > 0,
             # then skip the download
             if (
                 skip_when_exists
                 and os.path.exists(save_path)
-                and os.path.getsize(save_path)
-                > 0
+                and os.path.getsize(save_path) > 0
             ):
-                print(f"[INFO] cutout product {file_name} already exists in {save_path}, skipping.")
+                print(
+                    f"[INFO] cutout product {file_name} already exists in {save_path}, skipping."
+                )
                 return save_path
             saved_cutout_filepath = self.euclid.get_cutout(
                 file_path=file_path,
