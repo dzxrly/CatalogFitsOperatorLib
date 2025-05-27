@@ -343,9 +343,10 @@ class EuclidOps:
                 and os.path.exists(save_path)
                 and os.path.getsize(save_path) > 0
             ):
-                print(
-                    f"[INFO] cutout product {file_name} already exists in {save_path}, skipping."
-                )
+                if verbose:
+                    print(
+                        f"[INFO] cutout product {file_name} already exists in {save_path}, skipping."
+                    )
                 return save_path
             saved_cutout_filepath = self.euclid.get_cutout(
                 file_path=file_path,
