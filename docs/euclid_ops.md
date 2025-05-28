@@ -10,6 +10,8 @@
 6. [download_cutout_by_product](#download_cutout_by_product)
 7. [download_cutout_batch](#download_cutout_batch)
 8. [download_spectrum](#download_spectrum)
+9. [read_euclid_spec](#read_euclid_spec)
+10. [read_euclid_photometric](#read_euclid_photometric)
 
 ---
 
@@ -141,6 +143,28 @@
 ### 返回
 
 - `None`
+
+## read_euclid_spec
+
+### 参数
+
+- `spec_path`：`str`；包含光谱数据的FITS文件路径
+- `hdu_index`：`int`，默认为`1`；要读取的HDU索引
+
+### 返回
+
+- `np.ndarray`：光谱数据，形状为(2, N)的numpy数组，其中2表示列数（波长和流量），N表示数据点数量
+
+## read_euclid_photometric
+
+### 参数
+
+- `photometric_path`：`str`；包含测光数据的FITS文件路径
+- `hdu_index`：`int`，默认为`1`；要读取的HDU索引
+
+### 返回
+
+- `np.ndarray`：测光数据
 
 ---
 

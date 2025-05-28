@@ -3,8 +3,10 @@ import os.path
 import re
 
 import astropy.units as u
+import numpy as np
 import pandas as pd
 from astropy.coordinates import SkyCoord
+from astropy.io import fits
 from astroquery.esa.euclid import EuclidClass
 from rich import print
 
@@ -505,3 +507,65 @@ class EuclidOps:
             )
         except Exception as e:
             print(f"[ERROR] downloading spectrum product: {e}")
+
+
+def read_euclid_spec(
+    spec_path: str,
+    hdu_index: int = 1,
+) -> np.ndarray:
+    """
+    Read the Euclid spectrum from a FITS file.
+
+    Parameters
+    ----------
+    spec_path : str
+        The path to the FITS file containing the spectrum.
+    hdu_index : int
+        The index of the HDU to read the spectrum from. Default is 1.
+
+    Returns
+    -------
+    np.ndarray
+        The spectrum data as a numpy array. Shape like (2, N), where 2 is the number of columns (WAVELENGTH, FLUX) and N is the number of data points.]
+    """
+    hdu_list = fits.open(spec_path)
+    return np.array(
+        [
+            hdu_list[hdu_index].data["WAVELENGTH"].astype(np.float64),
+            hdu_list[hdu_index].data["SIGNAL"].astype(np.float64),
+        ]
+    )
+
+
+def read_euclid_photometric(
+    photometric_path: str,
+    hdu_index: int = 1,
+) -> np.ndarray:
+    """
+    Read the Euclid photometric data from a FITS file.
+
+    Parameters
+    ----------
+    photometric_path : str
+        The path to the FITS file containing the photometric data.
+    hdu_index : int
+        The index of the HDU to read the photometric data from. Default is 1.
+
+    Returns
+    -------
+    np.ndarray
+        The photometric data as a numpy array.
+    """
+    hdu_list = fits.open(photometric_path)
+    return np.array(hdu_list[hdu_index].data)
+
+
+if __name__ == "__main__":
+    # Debug test, please ignore this.
+    read_euclid_spec("docs/sample/Euclid_Sample/sedm_ALL/SPECTRA_RGS-sedm.fits")
+    print(
+        read_euclid_photometric(
+            "docs/sample/Euclid_Sample/EUC_MER_BGSUB-MOSAIC-VIS_CUTOUT.fits",
+            hdu_index=0,
+        ).shape
+    )
