@@ -428,13 +428,15 @@ class EuclidOps:
             print(product_list_results)
         _temp_res = []
         for _product in product_list_results:
-            _leak_band_flag = True
+            _leak_band_flag = {}
+            for band in include_bands:
+                _leak_band_flag[band] = True
             for band in include_bands:
                 if band in _product["file_name"]:
                     _temp_res.append(_product)
-                    _leak_band_flag = False
+                    _leak_band_flag[band] = False
                     break
-            if _leak_band_flag and not skip_when_band_not_found:
+            if not skip_when_band_not_found and any(_leak_band_flag.values()):
                 raise ValueError(
                     f"[ERROR] Leak bands for obs_id: {obs_id} or tile_index: {tile_index}"
                 )
