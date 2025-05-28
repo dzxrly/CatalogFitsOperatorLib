@@ -40,7 +40,7 @@ def create_dir(path):
 def fits_reproject(
     target_fits_path: str,
     other_fits_path: list[str],
-    bands_order: list[str],
+    bands_order: dict,
     hdu_index: int,
     post_process: callable = None,
 ) -> np.ndarray:
@@ -48,7 +48,11 @@ def fits_reproject(
     Reproject a FITS image to a target header
     :param target_fits_path: str, target FITS image path
     :param other_fits_path: list[str], other FITS image path
-    :param bands_order: list[str], order of bands
+    :param bands_order: dict, bands order, must keep one-by-one projection with the FILE NAME in target_fits_path & other_fits_path
+    like {
+        "u": "xxx.fits",
+        "g": "yyy.fits",
+    }
     :param hdu_index: int, HDU index
     :param post_process: callable, post process work flow, like SqrtStretch()(MinMaxInterval()(target_data, clip=False))
     :return: C x H x W numpy array
@@ -61,9 +65,7 @@ def fits_reproject(
     if post_process is not None:
         target_data = post_process(target_data)
     stack_img = {
-        os.path.basename(target_fits_path)
-        .split("-")[1]
-        .lower(): np.expand_dims(target_data, axis=-1)
+        os.path.basename(target_fits_path): np.expand_dims(target_data, axis=0)
     }
     # Other
     for fits_path in other_fits_path:
@@ -72,14 +74,14 @@ def fits_reproject(
         reprojected_data, reprojected_footprint = reproject_interp(hdu, target_header)
         if post_process is not None:
             reprojected_data = post_process(reprojected_data)
-        stack_img[os.path.basename(fits_path).split("-")[1].lower()] = np.expand_dims(
-            reprojected_data, axis=-1
+        stack_img[os.path.basename(fits_path)] = np.expand_dims(
+            reprojected_data, axis=0
         )
     # stack img following bands_order
     stack_img_list = []
-    for band in bands_order:
-        stack_img_list.append(stack_img[band])
-    stack_img = np.concatenate(stack_img_list, axis=-1)
+    for band in bands_order.keys():
+        stack_img_list.append(stack_img[bands_order[band]])
+    stack_img = np.concatenate(stack_img_list, axis=0)
     return stack_img
 
 

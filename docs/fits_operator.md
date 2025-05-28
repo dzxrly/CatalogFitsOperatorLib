@@ -41,9 +41,15 @@
 
 - `target_fits_path`：`str`；对齐目标波段的测光图像路径
 - `other_fits_path`：`list[str]`；其他波段的测光图像的路径
-- `bands_order`：`list[str]`；波段堆叠顺序
+- `bands_order`：`dict`；波段堆叠顺序，必须与`target_fits_path`和`other_fits_path`中的文件名一一对应，例如：
+  ```json
+  {
+      "u": "xxx.fits",
+      "g": "yyy.fits"
+  }
+  ```
 - `hdu_index`：`int`；指定测光图像在`.fits`或`.fits.gz`文件中存储的`hdu`
-- `post_process`：`function`；对齐后对该图像的后处理操作回调函数
+- `post_process`：`function`；对齐后对该图像的后处理操作回调函数，例如`SqrtStretch()(MinMaxInterval()(target_data, clip=False))`
 
 ### 返回
 
