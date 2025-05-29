@@ -161,7 +161,13 @@
 - `unique_id`：`str`；唯一id，用来在保存时避免同名覆盖
 - `target_band`：`str`；目标波段的名称
 - `other_bands`：`list[str]`；其他波段的名称
-- `bands_order`：`list[str]`；波段堆叠顺序
+- `bands_order`：`dict`；波段堆叠顺序，必须与`target_fits_path`和`other_fits_path`中的文件名一一对应，例如：
+  ```json
+  {
+      "u": "xxx.fits",
+      "g": "yyy.fits"
+  }
+  ```
 - `crop_size`：`int`；裁剪后的图像大小
 - `up_sample_size`：`int`或`None`；上采样后的大小，如果设置为`None`则不进行上采样
 - `target_coord`：`SkyCoord`；`Astropy`库中的`SkyCoord`类型的天文坐标

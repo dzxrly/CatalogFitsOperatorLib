@@ -268,7 +268,7 @@ def reproject_process(
     unique_id: str,
     target_band: str,
     other_bands: list[str],
-    bands_order: list[str],
+    bands_order: dict,
     crop_size: int,
     up_sample_size: Union[int, None],
     target_coord: SkyCoord,
