@@ -12,3 +12,5 @@ openpyxl
 requests
 scipy
 astroquery
+sparclclient
+astro-datalab
