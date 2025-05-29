@@ -150,6 +150,8 @@
 
 - `spec_path`：`str`；包含光谱数据的FITS文件路径
 - `hdu_index`：`int`，默认为`1`；要读取的HDU索引
+- `redshift`：`float | None`，默认为`None`；红移修正值，当`redshift_correction`为`True`时使用
+- `redshift_correction`：`bool`，默认为`False`；是否进行红移修正
 
 ### 返回
 
