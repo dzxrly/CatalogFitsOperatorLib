@@ -9,7 +9,8 @@ from astropy.coordinates import SkyCoord
 from astropy.io import fits
 from astroquery.esa.euclid import EuclidClass
 from rich import print
-from specutils import Spectrum1D
+from specutils import Spectrum1D, SpectralRegion
+from specutils.manipulation import extract_region
 
 
 def modify_adql_query(query: str, object_ids: list[str | int]) -> str:
@@ -512,9 +513,7 @@ class EuclidOps:
 
 def read_euclid_spec(
     spec_path: str,
-    hdu_index: int = 1,
-    redshift: float = None,
-    redshift_correction: bool = False,
+    extract_regions: SpectralRegion = None,
 ) -> np.ndarray:
     """
     Read the Euclid spectrum from a FITS file.
@@ -523,39 +522,20 @@ def read_euclid_spec(
     ----------
     spec_path : str
         The path to the FITS file containing the spectrum.
-    hdu_index : int
-        The index of the HDU to read the spectrum from. Default is 1.
-    redshift : float, optional
-        The redshift correction value to apply to the spectrum. When redshift_correction is True, the spectrum will be corrected.
-    redshift_correction : bool, optional
-        If True, apply redshift correction to the spectrum. Default is False.
+    extract_regions : SpectralRegion, optional
+        If provided, extract only the specified spectral region from the spectrum. Default is None.
 
     Returns
     -------
     np.ndarray
         The spectrum data as a numpy array. Shape like (2, N), where 2 is the number of columns (WAVELENGTH, FLUX) and N is the number of data points.]
     """
-    hdu_list = fits.open(spec_path)
-    if not redshift_correction:
-        return np.array(
-            [
-                hdu_list[hdu_index].data["WAVELENGTH"].astype(np.float64),
-                hdu_list[hdu_index].data["SIGNAL"].astype(np.float64),
-            ]
-        )
-    else:
-        assert (
-            redshift is not None
-        ), "[ERROR] redshift must be provided when redshift_correction is True."
-        spec = Spectrum1D.read(spec_path)
-        spec.set_redshift_to(redshift)
-        spec.shift_spectrum_to(redshift=0)
-        return np.array(
-            [
-                spec.wavelength.value.astype(np.float64),
-                spec.flux.value.astype(np.float64),
-            ]
-        )
+    spec = Spectrum1D.read(spec_path)
+    if extract_regions is not None:
+        spec = extract_region(spec, extract_regions)
+    wavelength = spec.spectral_axis
+    flux = spec.flux
+    return np.array([wavelength.value, flux.value])
 
 
 def read_euclid_photometric(

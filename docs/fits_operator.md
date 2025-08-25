@@ -49,7 +49,8 @@
   }
   ```
 - `hdu_index`：`int`；指定测光图像在`.fits`或`.fits.gz`文件中存储的`hdu`
-- `post_process`：`function`；对齐后对该图像的后处理操作回调函数，例如`SqrtStretch()(MinMaxInterval()(target_data, clip=False))`
+- `post_process`：`function`；对齐后对该图像的后处理操作回调函数，例如
+  `SqrtStretch()(MinMaxInterval()(target_data, clip=False))`
 
 ### 返回
 
@@ -117,7 +118,8 @@
 
 ### 返回
 
-`Tuple[Union[None, np.ndarray], Union[None, np.ndarray]]`，返回**裁剪后的测光图像**与**只经过堆叠的测光图像**，如果不存在则对应返回`None`
+`Tuple[Union[None, np.ndarray], Union[None, np.ndarray]]`，返回**裁剪后的测光图像**与**只经过堆叠的测光图像**，如果不存在则对应返回
+`None`
 
 ## SDSS_photo_download_process
 
@@ -126,7 +128,8 @@
 ### 参数
 
 - `unique_id`：`str`；唯一id，用来在保存时避免同名覆盖
-- `base_url`：`str`；SDSS文件服务器的基础`url`，例如[https://data.sdss.org/sas/dr17/eboss/photoObj/frames](https://data.sdss.org/sas/dr17/eboss/photoObj/frames)
+- `base_url`：`str`；SDSS文件服务器的基础`url`
+  ，例如[https://data.sdss.org/sas/dr17/eboss/photoObj/frames](https://data.sdss.org/sas/dr17/eboss/photoObj/frames)
 - `run`：`str`；SDSS测光星表中的字段
 - `rerun`：`str`；SDSS测光星表中的字段
 - `camcol`：`str`；SDSS测光星表中的字段
@@ -222,7 +225,8 @@
 
 ## get_csv_header_col_name
 
-在不使用`pandas`库的情况下读取`.csv`文件的表头（适用场景是包含几百万甚至几千万条数据的`.csv`文件，这类文件使用`pandas`库读取太慢）
+在不使用`pandas`库的情况下读取`.csv`文件的表头（适用场景是包含几百万甚至几千万条数据的`.csv`文件，这类文件使用`pandas`
+库读取太慢）
 
 ### 参数
 
